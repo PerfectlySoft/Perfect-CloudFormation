@@ -22,6 +22,7 @@ import Foundation
 private let paCloudFormationEnvPrefix = "PACF_"
 private let paCloudFormationRDSPrefix = "RDS_"
 private let paCloudFormationElastiCachePrefix = "ELASTICACHE_"
+private let paCloudFormationInstancesPrefix = "INSTANCES"
 private let paCloudFormationAccessKeyId = "ACCESS_KEY_ID"
 private let paCloudFormationSecretAccessKey = "SECRET_ACCESS_KEY"
 private let paCloudFormationCertDomainPrefix = "CERT_DOMAIN_"
@@ -59,6 +60,13 @@ public enum CloudFormation {
 		public let resourceName: String
 		public let hostName: String
 		public let hostPort: Int
+	}
+	
+	public struct EC2Instance {
+		public let resourceId: String
+		public let resourceName: String
+		public let hostName: String
+		public let hostPorts: [Int]
 	}
 	
 	public struct ACMCertificate {
@@ -144,7 +152,6 @@ public extension CloudFormation {
 		}
 		return ElastiCacheInstance(resourceType: .redis, resourceId: id, resourceName: name, hostName: hst, hostPort: prt)
 	}
-
 	static func listElastiCacheInstances() -> [ElastiCacheInstance] {
 		let redisList = prefixedEnvList("\(paCloudFormationElastiCachePrefix)\(paCloudFormationRedis)")
 		return redisList.flatMap { elastiCacheByName($0, type: .redis) }
@@ -153,6 +160,23 @@ public extension CloudFormation {
 		return listElastiCacheInstances().filter { $0.resourceType == type }
 	}
 }
+
+public extension CloudFormation {
+	private static func ec2InstanceByName(_ name: String) -> EC2Instance? {
+		guard let hst = prefixedEnv("\(name)_HOST"),
+			let prtStr = prefixedEnv("\(name)_PORTS"),
+			let id = prefixedEnv("\(name)_ID") else {
+				return nil
+		}
+		let prts = prtStr.characters.split(separator: ":").map(String.init).flatMap(Int.init)
+		return EC2Instance(resourceId: id, resourceName: name, hostName: hst, hostPorts: prts)
+	}
+	static func listEC2Instances() -> [EC2Instance] {
+		let redisList = prefixedEnvList("\(paCloudFormationInstancesPrefix)")
+		return redisList.flatMap { ec2InstanceByName($0) }
+	}
+}
+
 /*
 public extension CloudFormation.ACMCertificate {
 	init?(domain: String) {
