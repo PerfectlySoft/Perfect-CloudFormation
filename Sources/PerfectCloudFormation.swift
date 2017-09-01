@@ -28,6 +28,10 @@ private let paCloudFormationCertDomainPrefix = "CERT_DOMAIN_"
 private let paCloudFormationCertArnPrefix = "CERT_ARN_"
 private let paCloudFormationRegion = "REGION"
 
+private let paCloudFormationPostgres = "POSTGRES"
+private let paCloudFormationMySQL = "MYSQL"
+private let paCloudFormationRedis = "REDIS"
+
 public enum CloudFormation {
 	public struct Error: Swift.Error, CustomStringConvertible {
 		public var description: String { return message }
@@ -74,6 +78,13 @@ public enum CloudFormation {
 	static func prefixedEnv(_ named: String) -> String? {
 		return env["\(paCloudFormationEnvPrefix)\(named)"]
 	}
+	
+	static func prefixedEnvList(_ named: String) -> [String] {
+		if let e = env["\(paCloudFormationEnvPrefix)\(named)"] {
+			return e.characters.split(separator: ":").map(String.init)
+		}
+		return []
+	}
 }
 
 public extension CloudFormation {
@@ -95,12 +106,28 @@ public extension CloudFormation {
 		}
 		return (i, k)
 	}
-	
 }
 
 public extension CloudFormation {
+	private static func rdsByName(_ name: String, type: RDSInstance.DBType) -> RDSInstance? {
+		guard let un = prefixedEnv("\(name)_USERNAME"),
+			let pw = prefixedEnv("\(name)_PASSWORD"),
+			let hst = prefixedEnv("\(name)_HOST"),
+			let prtStr = prefixedEnv("\(name)_PORT"),
+			let prt = Int(prtStr),
+			let id = prefixedEnv("\(name)_ID") else {
+				return nil
+		}
+		return RDSInstance(resourceType: type, resourceId: id, resourceName: name, userName: un, password: pw, hostName: hst, hostPort: prt)
+	}
+	
 	static func listRDSInstances() -> [RDSInstance] {
-		return []
+		var ret: [RDSInstance] = []
+		let postgresList = prefixedEnvList("\(paCloudFormationRDSPrefix)\(paCloudFormationPostgres)")
+		ret.append(contentsOf: postgresList.flatMap { rdsByName($0, type: .postgres) })
+		let mysqlList = prefixedEnvList("\(paCloudFormationRDSPrefix)\(paCloudFormationMySQL)")
+		ret.append(contentsOf: mysqlList.flatMap { rdsByName($0, type: .mysql) })
+		return ret
 	}
 	static func listRDSInstances(type: RDSInstance.DBType) -> [RDSInstance] {
 		return listRDSInstances().filter { $0.resourceType == type }
@@ -108,8 +135,19 @@ public extension CloudFormation {
 }
 
 public extension CloudFormation {
+	private static func elastiCacheByName(_ name: String, type: ElastiCacheInstance.ElastiCacheType) -> ElastiCacheInstance? {
+		guard let hst = prefixedEnv("\(name)_HOST"),
+			let prtStr = prefixedEnv("\(name)_PORT"),
+			let prt = Int(prtStr),
+			let id = prefixedEnv("\(name)_ID") else {
+				return nil
+		}
+		return ElastiCacheInstance(resourceType: .redis, resourceId: id, resourceName: name, hostName: hst, hostPort: prt)
+	}
+
 	static func listElastiCacheInstances() -> [ElastiCacheInstance] {
-		return []
+		let redisList = prefixedEnvList("\(paCloudFormationElastiCachePrefix)\(paCloudFormationRedis)")
+		return redisList.flatMap { elastiCacheByName($0, type: .redis) }
 	}
 	static func listElastiCacheInstances(type: ElastiCacheInstance.ElastiCacheType) -> [ElastiCacheInstance] {
 		return listElastiCacheInstances().filter { $0.resourceType == type }
