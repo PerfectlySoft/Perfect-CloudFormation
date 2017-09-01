@@ -2,7 +2,7 @@
 
 This package provides support for services deployed to AWS through Perfect Assistant 2.1's CloudFormation deployment tools. It permits server instances to find and connect to the RDS and ElastiCache instances that were deployed along with the application.
 
-To ustilize this package, `import PerfectCloudFormation` and then call either `CloudFormation.listRDSInstances()` or `CloudFormation.listElastiCacheInstances()`.
+To utilize this package, `import PerfectCloudFormation` and then call either `CloudFormation.listRDSInstances()` or `CloudFormation.listElastiCacheInstances()`.
 
 ```swift
 public extension CloudFormation {
