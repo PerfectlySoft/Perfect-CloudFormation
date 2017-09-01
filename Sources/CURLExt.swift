@@ -5,6 +5,7 @@
 //  Created by Kyle Jessup on 2017-08-30.
 //
 
+/*
 import Foundation
 import PerfectCURL
 import PerfectCrypto
@@ -125,7 +126,7 @@ public struct AWSGetCertificate : AWSCURLConfigurator {
 		//...
 	}
 }
-
+*/
 
 
 

@@ -17,7 +17,7 @@
 //
 
 import Foundation
-import PerfectCURL
+//import PerfectCURL
 
 private let paCloudFormationEnvPrefix = "PACF_"
 private let paCloudFormationRDSPrefix = "RDS_"
@@ -153,7 +153,7 @@ public extension CloudFormation {
 		return listElastiCacheInstances().filter { $0.resourceType == type }
 	}
 }
-
+/*
 public extension CloudFormation.ACMCertificate {
 	init?(domain: String) {
 		for i in 0..<Int.max {
@@ -180,5 +180,5 @@ public extension CloudFormation.ACMCertificate {
 		return nil
 	}
 }
-
+*/
 
