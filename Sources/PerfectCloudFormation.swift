@@ -22,7 +22,7 @@ import Foundation
 private let paCloudFormationEnvPrefix = "PACF_"
 private let paCloudFormationRDSPrefix = "RDS_"
 private let paCloudFormationElastiCachePrefix = "ELASTICACHE_"
-private let paCloudFormationInstancesPrefix = "INSTANCES"
+private let paCloudFormationSwiftletsPrefix = "SWIFTLETS"
 private let paCloudFormationAccessKeyId = "ACCESS_KEY_ID"
 private let paCloudFormationSecretAccessKey = "SECRET_ACCESS_KEY"
 private let paCloudFormationCertDomainPrefix = "CERT_DOMAIN_"
@@ -62,7 +62,7 @@ public enum CloudFormation {
 		public let hostPort: Int
 	}
 	
-	public struct EC2Instance {
+	public struct SwiftletInstance {
 		public let resourceId: String
 		public let resourceName: String
 		public let hostName: String
@@ -162,18 +162,18 @@ public extension CloudFormation {
 }
 
 public extension CloudFormation {
-	private static func ec2InstanceByName(_ name: String) -> EC2Instance? {
+	private static func swiftletByName(_ name: String) -> SwiftletInstance? {
 		guard let hst = prefixedEnv("\(name)_HOST"),
 			let prtStr = prefixedEnv("\(name)_PORTS"),
 			let id = prefixedEnv("\(name)_ID") else {
 				return nil
 		}
-		let prts = prtStr.characters.split(separator: ":").map(String.init).flatMap(Int.init)
-		return EC2Instance(resourceId: id, resourceName: name, hostName: hst, hostPorts: prts)
+		let prts = prtStr.characters.split(separator: ":").map(String.init).flatMap { Int($0) }
+		return SwiftletInstance(resourceId: id, resourceName: name, hostName: hst, hostPorts: prts)
 	}
-	static func listEC2Instances() -> [EC2Instance] {
-		let redisList = prefixedEnvList("\(paCloudFormationInstancesPrefix)")
-		return redisList.flatMap { ec2InstanceByName($0) }
+	static func listSwiftlets() -> [SwiftletInstance] {
+		let swiftletList = prefixedEnvList("\(paCloudFormationSwiftletsPrefix)")
+		return swiftletList.flatMap { swiftletByName($0) }
 	}
 }
 
