@@ -177,6 +177,13 @@ public extension CloudFormation {
 	}
 }
 
+
+public extension CloudFormation {
+	static func swiftletInput(named: String) -> String? {
+		return prefixedEnv("SWIFTLET_INPUT_\(named.uppercased())")
+	}
+}
+
 /*
 public extension CloudFormation.ACMCertificate {
 	init?(domain: String) {
