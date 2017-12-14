@@ -89,7 +89,7 @@ public enum CloudFormation {
 	
 	static func prefixedEnvList(_ named: String) -> [String] {
 		if let e = env["\(paCloudFormationEnvPrefix)\(named)"] {
-			return e.characters.split(separator: ":").map(String.init)
+			return e.split(separator: ":").map(String.init)
 		}
 		return []
 	}
@@ -168,7 +168,7 @@ public extension CloudFormation {
 			let id = prefixedEnv("\(name)_ID") else {
 				return nil
 		}
-		let prts = prtStr.characters.split(separator: ":").map(String.init).flatMap { Int($0) }
+		let prts = prtStr.split(separator: ":").map(String.init).flatMap { Int($0) }
 		return SwiftletInstance(resourceId: id, resourceName: name, hostName: hst, hostPorts: prts)
 	}
 	static func listSwiftlets() -> [SwiftletInstance] {
