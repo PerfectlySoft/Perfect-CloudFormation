@@ -49,6 +49,22 @@ public enum CloudFormation {
 		public let password: String
 		public let hostName: String
 		public let hostPort: Int
+		
+		public init(resourceType rt: DBType,
+					resourceId ri: String,
+					resourceName rn: String,
+					userName un: String,
+					password p: String,
+					hostName hn: String,
+					hostPort hp: Int) {
+			resourceType = rt
+			resourceId = ri
+			resourceName = rn
+			userName = un
+			password = p
+			hostName = hn
+			hostPort = hp
+		}
 	}
 	
 	public struct ElastiCacheInstance {
