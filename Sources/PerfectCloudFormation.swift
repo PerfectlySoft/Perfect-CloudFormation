@@ -76,6 +76,17 @@ public enum CloudFormation {
 		public let resourceName: String
 		public let hostName: String
 		public let hostPort: Int
+		public init(resourceType rt: ElastiCacheType,
+					resourceId rid: String,
+					resourceName rn: String,
+					hostName hn: String,
+					hostPort hp: Int) {
+			resourceType = rt
+			resourceId = rid
+			resourceName = rn
+			hostName = hn
+			hostPort = hp
+		}
 	}
 	
 	public struct SwiftletInstance {
@@ -83,13 +94,15 @@ public enum CloudFormation {
 		public let resourceName: String
 		public let hostName: String
 		public let hostPorts: [Int]
-	}
-	
-	public struct ACMCertificate {
-		public let domainName: String
-		public let arn: String
-		public let certificate: String
-		public let certificateChain: String
+		public init(resourceId rid: String,
+					resourceName rn: String,
+					hostName hn: String,
+					hostPorts hp: [Int]) {
+			resourceId = rid
+			resourceName = rn
+			hostName = hn
+			hostPorts = hp
+		}
 	}
 	
 	static var env: [String:String] {
@@ -199,33 +212,4 @@ public extension CloudFormation {
 		return prefixedEnv("SWIFTLET_INPUT_\(named.uppercased())")
 	}
 }
-
-/*
-public extension CloudFormation.ACMCertificate {
-	init?(domain: String) {
-		for i in 0..<Int.max {
-			guard let certDomain = CloudFormation.prefixedEnv("\(paCloudFormationCertDomainPrefix)\(i)"),
-					let certArn = CloudFormation.prefixedEnv("\(paCloudFormationCertArnPrefix)\(i)")else {
-				break
-			}
-			guard certDomain.lowercased() == domain.lowercased() else {
-				continue
-			}
-			let request = CURLRequest(aws: AWSGetCertificate(arn: certArn))
-			do {
-				let json = try request.perform().bodyJSON
-				guard let chain = json["CertificateChain"] as? String,
-					let cert = json["Certificate"] as? String else {
-						return nil
-				}
-				self.init(domainName: domain, arn: certArn, certificate: cert, certificateChain: chain)
-				return
-			} catch {
-				break
-			}
-		}
-		return nil
-	}
-}
-*/
 
