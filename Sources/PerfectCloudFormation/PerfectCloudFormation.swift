@@ -161,9 +161,9 @@ public extension CloudFormation {
 	static func listRDSInstances() -> [RDSInstance] {
 		var ret: [RDSInstance] = []
 		let postgresList = prefixedEnvList("\(paCloudFormationRDSPrefix)\(paCloudFormationPostgres)")
-		ret.append(contentsOf: postgresList.flatMap { rdsByName($0, type: .postgres) })
+		ret.append(contentsOf: postgresList.compactMap { rdsByName($0, type: .postgres) })
 		let mysqlList = prefixedEnvList("\(paCloudFormationRDSPrefix)\(paCloudFormationMySQL)")
-		ret.append(contentsOf: mysqlList.flatMap { rdsByName($0, type: .mysql) })
+		ret.append(contentsOf: mysqlList.compactMap { rdsByName($0, type: .mysql) })
 		return ret
 	}
 	static func listRDSInstances(type: RDSInstance.DBType) -> [RDSInstance] {
@@ -183,7 +183,7 @@ public extension CloudFormation {
 	}
 	static func listElastiCacheInstances() -> [ElastiCacheInstance] {
 		let redisList = prefixedEnvList("\(paCloudFormationElastiCachePrefix)\(paCloudFormationRedis)")
-		return redisList.flatMap { elastiCacheByName($0, type: .redis) }
+		return redisList.compactMap { elastiCacheByName($0, type: .redis) }
 	}
 	static func listElastiCacheInstances(type: ElastiCacheInstance.ElastiCacheType) -> [ElastiCacheInstance] {
 		return listElastiCacheInstances().filter { $0.resourceType == type }
@@ -197,12 +197,12 @@ public extension CloudFormation {
 			let id = prefixedEnv("\(name)_ID") else {
 				return nil
 		}
-		let prts = prtStr.split(separator: ":").map(String.init).flatMap { Int($0) }
+		let prts = prtStr.split(separator: ":").map(String.init).compactMap { Int($0) }
 		return SwiftletInstance(resourceId: id, resourceName: name, hostName: hst, hostPorts: prts)
 	}
 	static func listSwiftlets() -> [SwiftletInstance] {
 		let swiftletList = prefixedEnvList("\(paCloudFormationSwiftletsPrefix)")
-		return swiftletList.flatMap { swiftletByName($0) }
+		return swiftletList.compactMap { swiftletByName($0) }
 	}
 }
 
